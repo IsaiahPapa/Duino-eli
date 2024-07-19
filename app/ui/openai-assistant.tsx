@@ -127,7 +127,7 @@ export default function OpenAIAssistant({
 
     return (
         <>
-            <div className="flex gap-4 flex-col shadow-md relative">
+            <div className="flex gap-4 flex-col relative overflow-y-auto">
                 <OpenAIAssistantMessage message={greetingMessage} />
                 {messages.map((m) => (
                     <OpenAIAssistantMessage key={m.id} message={m} />
@@ -138,11 +138,12 @@ export default function OpenAIAssistant({
                 <input
                     disabled={isLoading}
                     autoFocus
-                    className="border rounded-full w-full py-2 px-4 text-gray-70"
+                    className="rounded-full w-full py-2 px-4 placeholder:text-neutral-500 focus:uns text-[#ececec] bg-[#2f2f2f] focus:outline-none"
                     onChange={handlePromptChange}
                     value={prompt}
                     placeholder="Type a question..."
                 />
+
                 {isLoading ? (
                     <button
                         disabled
@@ -174,7 +175,7 @@ export function OpenAIAssistantMessage({ message }: { message: Message }) {
     }
     return (
         <div
-            className={`flex rounded text-gray-700 text-center ${
+            className={`flex rounded text-[#ececec] text-center ${
                 message.role === "user" ? "flex-row-reverse" : ""
             }`}
         >
@@ -185,7 +186,7 @@ export function OpenAIAssistantMessage({ message }: { message: Message }) {
             >
                 {displayRole(message.role)}
             </div>
-            <div className="mx-4 text-left overflow-auto bg-white p-3 rounded-lg mb-2">
+            <div className="text-left p-2 px-4 rounded-lg mb-2">
                 <Markdown>{message.content}</Markdown>
             </div>
         </div>

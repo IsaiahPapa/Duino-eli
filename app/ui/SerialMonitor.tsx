@@ -1,32 +1,73 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState, useRef } from "react";
+import { useArduinoContext } from "./ArduinoProvider";
 
 interface ButtonProps {
     text: string;
+    onClick: () => void;
 }
 
-const Button: React.FC<ButtonProps> = ({ text }) => (
-    <div className="justify-center px-4 py-2 rounded-lg bg-neutral-700">{text}</div>
+const Button: React.FC<ButtonProps> = ({ text, onClick }) => (
+    <button
+        onClick={onClick}
+        className="justify-center px-4 py-2 rounded-lg bg-neutral-700 text-white cursor-pointer"
+    >
+        {text}
+    </button>
 );
 
 const SerialMonitor: React.FC = () => {
-    const numbers = [
-        327.18, 314.65, 312.58, 261.88, 202.75, 149.87, 111.8, 82.85, 60.37, 45.32, 31.8, 22.23, 16.23, 12.48,
-        8.82, 6.15, 4.57, 2.7, 1.77, 1.25, 0.85, 0.43, -0.02, -0.55, -0.8, -0.8, -1.02, -1.53, -1.83, -2.23,
-        -2.7, -2.57, -2.38, -2.62, -2.63, -2.53, -2.48, -2.28, -2.0, -3.6, -3.47, -1.65, 0.08, 2.52, 7.68,
-        10.48, 11.3, 10.75, 8.17,
-    ];
+    const [isAutoScroll, setIsAutoScroll] = useState(true); // State to control auto-scrolling
+    const dataRef = useRef<HTMLDivElement | null>(null);
+
+    const { data, clearData } = useArduinoContext();
+
+    // Function to copy data to clipboard
+    const copyData = () => {
+        const textData = data.join("\n");
+        navigator.clipboard.writeText(textData).then(
+            () => {
+                alert("Data copied to clipboard!");
+            },
+            (err) => {
+                console.error("Failed to copy data: ", err);
+            }
+        );
+    };
+
+    // Handle user scroll to potentially pause/resume auto-scroll
+    const handleScroll = () => {
+        if (!dataRef.current) {
+            return;
+        }
+        const { scrollTop, scrollHeight, clientHeight } = dataRef.current;
+        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // Buffer of 10 pixels
+        setIsAutoScroll(isAtBottom);
+    };
+
+    // Auto-scroll to the bottom of the data view if auto-scroll is active
+    useEffect(() => {
+        if (isAutoScroll && dataRef.current) {
+            dataRef.current.scrollTop = dataRef.current.scrollHeight;
+        }
+    }, [data, isAutoScroll]);
 
     return (
         <aside className="flex flex-col w-[15%] max-md:w-full">
-            <div className="flex flex-col grow self-stretch mx-auto w-full text-white bg-neutral-800 rounded-[16px] max-md:px-5 max-md:mt-10 h-full">
+            <div className="flex flex-col grow self-stretch mx-auto w-full text-white bg-[#1e1e1e] rounded-[16px] max-md:px-5 max-md:mt-10 h-full">
                 <div className="flex gap-2.5 justify-between text-base whitespace-nowrap p-2.5">
-                    <Button text="Clear" />
-                    <Button text="Copy" />
+                    <Button text="Clear" onClick={clearData} />
+                    <Button text="Copy" onClick={copyData} />
                 </div>
-                <div className="text-3xl overflow-y-auto px-8">
-                    {numbers.map((number, index) => (
+                <div
+                    ref={dataRef}
+                    className="text-2xl overflow-y-auto px-8 pb-8"
+                    onScroll={handleScroll} // Listen to scroll events
+                >
+                    {data.map((number, index) => (
                         <React.Fragment key={index}>
-                            {number}
+                            {number.toFixed(2)}
                             <br />
                         </React.Fragment>
                     ))}
