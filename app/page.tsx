@@ -5,6 +5,7 @@ import Graph from "./ui/Graph";
 import Chat from "./ui/Chat";
 import { EditorProvider } from "./ui/EditorProvider";
 import { ArduinoProvider } from "./ui/ArduinoProvider";
+import ArduinoConnect from "./ui/ArduinoConnect";
 
 const ArduinoIDE: React.FC = () => {
     return (
@@ -15,8 +16,9 @@ const ArduinoIDE: React.FC = () => {
                         <EditorProvider>
                             <SerialMonitor />
                             <MainEditor />
-                            <div className="flex flex-col w-[29%] max-md:w-full h-full">
+                            <div className="flex flex-col w-[29%] max-md:w-full h-full gap-4">
                                 <Graph />
+                                <ArduinoConnect/>
                                 <Chat />
                             </div>
                         </EditorProvider>
